@@ -49,7 +49,7 @@ const CFG={
     
 	{category:"Facial",key:"nose_breadth",name:"Nose Breadth",
      colors:["#e9d5ff","#d8b4fe","#c084fc","#a855f7"],
-     bins:["Hyperleptorrhine","Leptorrhine ","Platyrrhine ","Hyperplatyrrhine "]},
+     bins:["Hyperleptorrhine","Leptorrhine","Platyrrhine","Hyperplatyrrhine"]},
     
 	{category:"Facial",key:"face_breadth",name:"Face Breadth",
      colors:["#cffafe","#a5f3fc","#67e8f9","#22d3ee","#06b6d4"],
