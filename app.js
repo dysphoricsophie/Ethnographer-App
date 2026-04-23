@@ -87,6 +87,7 @@ const els={
   btnExportProfile:document.getElementById("btnExportProfile"),btnImportProfile:document.getElementById("btnImportProfile"),fileProfile:document.getElementById("fileProfile"),
   btnDownloadCsv:document.getElementById("btnDownloadCsv"),btnScreenshot:document.getElementById("btnScreenshot"),peakControls:document.getElementById("peakControls"),
   description:document.getElementById("description"),completionStatus:document.getElementById("completionStatus"),toggleJson:document.getElementById("toggleJson"),
+  editingContext:document.getElementById("editingContext"),
   debug:document.getElementById("debug"),modal:document.getElementById("modal"),modalBody:document.getElementById("modalBody"),btnModalClose:document.getElementById("btnModalClose"),
 };
 
@@ -297,7 +298,13 @@ function syncPeakSliders(){
   if(!p||!_peakSliderRefs.mu)return;const set=(refs,val)=>{refs.rng.value=String(val);refs.num.value=String(val);};
   set(_peakSliderRefs.mu,Math.round(p.mu*1000)/1000);set(_peakSliderRefs.sigma,Math.round(p.sigma*1000)/1000);set(_peakSliderRefs.amp,Math.round(p.amp*1000)/1000);
 }
-function updateCurveAndBins(){const g=activeGroup();ensureGroupShape(state,g);renderCompletion();renderBins();drawCurve();syncPeakSliders();renderJsonPreview();}
+function updateCurveAndBins(){const g=activeGroup();ensureGroupShape(state,g);renderCompletion();renderBins();drawCurve();syncPeakSliders();renderEditingContext();renderJsonPreview();}
+function renderEditingContext(){
+  const g=activeGroup(),t=activeTrait(),tr=g?.traits?.[t.key];
+  const pIdx=(tr?.peaks||[]).findIndex(p=>p.id===state.ui.selectedPeakId);
+  const peakLabel=pIdx>=0?`Peak ${pIdx+1}`:"None";
+  if(els.editingContext) els.editingContext.textContent=`Editing: ${g?.name||"Group"} · Trait: ${t?.name||"Trait"} · Selected peak: ${peakLabel}`;
+}
 function renderJsonPreview(){
   if(!state.ui.showJson){els.debug.classList.add("hidden");return;}els.debug.classList.remove("hidden");
   const g=activeGroup(),out={name:g.name,description:g.description,traits:{}};
@@ -318,7 +325,7 @@ function isTraitComplete(state,g,key){
 }
 function rerender(full=true){ if(state.ui.activeTab==='Face') setTimeout(renderFace,10);
   if(full){renderGroupList();renderLockUI();renderTraitList();}
-  renderCompletion();renderBins();drawCurve();syncPeakSliders();renderPeakControls();renderJsonPreview();
+  renderCompletion();renderBins();drawCurve();syncPeakSliders();renderPeakControls();renderEditingContext();renderJsonPreview();
   els.description.value=activeGroup().description||"";els.spillover.value=String(state.settings.spillover);els.spilloverNum.value=String(state.settings.spillover);
 }
 function validateGroup(state,g,label){const issues=[];if(!(g.name||"").trim())issues.push(label+": Name empty.");if(!(g.description||"").trim())issues.push(label+": Description required.");for(const t of state.traits)if(!isTraitComplete(state,g,t.key))issues.push(label+": Incomplete trait: "+t.name);return issues;}
@@ -365,7 +372,7 @@ document.getElementById('btnTplConfirm').addEventListener('click',()=>{
 els.selGroup.addEventListener("change",()=>{state.ui.activeGroupId=els.selGroup.value;state.ui.selectedPeakId=null;saveState(state);rerender();});
 function setSpillover(v){state.settings.spillover=clamp(parseFloat(v)||0,0,0.6);els.spillover.value=String(state.settings.spillover);els.spilloverNum.value=String(state.settings.spillover);saveState(state);updateCurveAndBins();}
 els.spillover.addEventListener("input",()=>setSpillover(els.spillover.value));els.spilloverNum.addEventListener("input",()=>setSpillover(els.spilloverNum.value));
-els.selTrait.addEventListener("change",()=>{state.ui.activeTraitKey=els.selTrait.value;state.ui.selectedPeakId=null;saveState(state);renderPeakControls();renderBins();drawCurve();syncPeakSliders();renderJsonPreview();});
+els.selTrait.addEventListener("change",()=>{state.ui.activeTraitKey=els.selTrait.value;state.ui.selectedPeakId=null;saveState(state);renderPeakControls();renderEditingContext();renderBins();drawCurve();syncPeakSliders();renderJsonPreview();});
 els.description.addEventListener("input",()=>{activeGroup().description=els.description.value;saveState(state);renderCompletion();renderJsonPreview();});
 els.btnAddPeak.addEventListener("click",()=>{if(isTemplateLocked(activeGroup()))return;const g=activeGroup(),t=activeTrait(),tr=g.traits[t.key],n=t.bins.length;const p={id:uid(),mu:(n-1)/2,sigma:Math.max(0.8,n/6),amp:1};tr.peaks.push(p);state.ui.selectedPeakId=p.id;saveState(state);renderPeakControls();updateCurveAndBins();});
 els.btnRemovePeak.addEventListener("click",()=>{if(isTemplateLocked(activeGroup()))return;const g=activeGroup(),t=activeTrait(),tr=g.traits[t.key];if(tr.peaks.length<=1)return;const idx=tr.peaks.findIndex(x=>x.id===state.ui.selectedPeakId);tr.peaks.splice(idx<0?tr.peaks.length-1:idx,1);state.ui.selectedPeakId=tr.peaks[0]?.id||null;saveState(state);renderPeakControls();updateCurveAndBins();});
