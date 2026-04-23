@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Ethnographer</title>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sideTop">
+      <div class="brand">
+        <div class="brandMark">E</div>
+        <div><div class="brandName">Ethnographer</div><div class="brandSub">Phenotype distribution editor</div></div>
+      </div>
+      <div class="sideSection">
+        <div class="sideLabel">Project</div>
+        <div class="sideActions">
+          <button id="btnExportProject" class="btnFull primary">↓ Export Project</button>
+          <button id="btnImportProject" class="btnFull">↑ Import Project</button>
+          <input id="fileProject" type="file" accept="application/json" hidden/>
+        </div>
+        <div class="small" style="margin-top:8px">Autosaves to browser storage. Export for portable files.</div>
+      </div>
+      <div class="sideSection">
+        <div class="sideLabel">Navigation</div>
+        <nav class="nav">
+          <a class="navItem active" href="#">Editor</a>
+          <a class="navItem" href="#" aria-disabled="true">Trait Library <span style="font-size:10px;opacity:.5">soon</span></a>
+          <a class="navItem" href="#" aria-disabled="true">Compare <span style="font-size:10px;opacity:.5">soon</span></a>
+        </nav>
+      </div>
+      <div class="sideSection">
+        <div class="sideLabel">Interaction</div>
+        <div class="tipBox">
+          <div style="margin-bottom:4px"><kbd>Click</kbd> bin → Selected / Allowed</div>
+          <div><kbd>Shift+Click</kbd> → Excluded</div>
+          <div style="margin-top:5px">Drag peak dot → center &amp; weight<br>Drag ring → width</div>
+        </div>
+      </div>
+      <div class="sideSection">
+        <div class="sideLabel">About</div>
+        <div class="tipBox" style="font-size:10.5px;line-height:1.6">
+          Templates represent <strong style="color:var(--text)">pre-1500 CE</strong> phenotypic clusters. Bottom-up grouping by trait co-occurrence under shared environmental pressures — not racial or geographic classification.
+        </div>
+      </div>
+    </div>
+    <div class="sideFooter">v3 · Pre-1500 CE phenotypic distributions</div>
+  </aside>
+
+  <div class="main">
+    <header class="mainHeader">
+      <div>
+        <div class="pageTitle">Phenotype Distribution Editor</div>
+        <div class="pageSub">Model trait frequency distributions for pre-colonial phenotypic groups. Trait co-occurrence clustering — not racial or regional classification.</div>
+      </div>
+      <div class="statusPill" id="completionStatus"></div>
+    </header>
+
+    <div class="toolbar">
+      <div class="toolbarLeft">
+        <button id="btnNewGroup">+ New Group</button>
+        <button id="btnNewSubgroup">+ Subgroup</button>
+        <div class="toolbarDivider"></div>
+        <select id="selGroup"></select>
+        <span id="lockBadge" class="lockBadge hidden">🔒 Template</span>
+        <button id="btnDuplicateGroup" class="ghost" style="display:none">⎘ Duplicate</button>
+        <button id="btnDeleteGroup" class="danger">Delete</button>
+      </div>
+      <div class="toolbarRight">
+        <label class="lockToggleLabel">
+          <input id="lockTemplatesToggle" type="checkbox" checked/>
+          <span>Lock Templates</span>
+        </label>
+        <div class="toolbarDivider"></div>
+        <span class="lab">Spillover</span>
+        <input id="spillover" type="range" min="0" max="0.6" step="0.01"/>
+        <input id="spilloverNum" type="number" min="0" max="0.6" step="0.01"/>
+      </div>
+    </div>
+
+    <div class="contentArea">
+      <section class="card graphCard">
+        <div class="graphCardHeader">
+          <div>
+            <div class="cardTitle">Distribution Graph</div>
+            <div class="cardSub">Drag peak dot = center &amp; weight · drag ring = width · selected peak shows vertical center line + sigma guide</div>
+          </div>
+          <div class="graphCardRight">
+            <button id="btnAddPeak">+ Peak</button>
+            <button id="btnRemovePeak" class="danger">− Peak</button>
+            <button id="btnNormalize" class="ghost">Normalize</button>
+            <button id="btnRandom" class="ghost">Randomize</button>
+            <div class="toolbarDivider" style="height:18px"></div>
+            <span class="lab">Trait</span>
+            <select id="selTrait"></select>
+          </div>
+        </div>
+        <div class="canvasWrap"><canvas id="curve"></canvas></div>
+        <div class="hint">Click bins to toggle mode · Shift+Click = Exclude</div>
+        <div class="binsWrap"><div id="bins" class="bins"></div></div>
+        <div class="profileActions">
+          <button id="btnExportProfile" class="primary">↓ Export Profile</button>
+          <button id="btnImportProfile">↑ Import Profile</button>
+          <input id="fileProfile" type="file" accept="application/json" hidden/>
+          <button id="btnDownloadCsv" class="ghost">CSV</button>
+          <button id="btnScreenshot" class="ghost">PNG</button>
+        </div>
+      </section>
+
+      <div class="bottomRow">
+        <div class="bottomLeft">
+          <section class="card">
+            <div class="cardHeader">
+              <div>
+                <div class="cardTitle">Peak Controls &amp; Description</div>
+                <div class="cardSub">Adjust selected peak parameters and group description.</div>
+              </div>
+            </div>
+            <div class="bottomCardInner">
+              <div>
+                <div class="sectionTitle">Selected Peak</div>
+                <div id="peakControls" class="controls"></div>
+              </div>
+              <div>
+                <div class="sectionTitle">Description <span class="req">Required</span></div>
+                <textarea id="description" rows="7"
+                  placeholder="Describe this phenotypic group: ecology, environmental pressures, climate adaptations, diet, migration history…"></textarea>
+              </div>
+            </div>
+          </section>
+        </div>
+        <div class="bottomRight">
+          <section class="card">
+            <div class="cardHeader" style="margin-bottom:8px">
+              <div>
+                <div class="cardTitle">JSON Preview</div>
+                <div class="cardSub">Live export state.</div>
+              </div>
+              <label class="jsonToggle">
+                <input id="toggleJson" type="checkbox" checked/>
+                <span>Show</span>
+              </label>
+            </div>
+            <pre id="debug" class="jsonPre"></pre>
+          </section>
+        </div>
+      </div>
+
+      <footer class="footer">
+        Autosaved locally · Export Project for portable files · Templates = pre-1500 CE phenotypic distributions, not racial classification
+      </footer>
+    </div>
+  </div>
+</div>
+
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modalCard">
+    <div class="modalHeader"><div class="modalIcon">⚠</div><div class="modalTitle">Cannot export yet</div></div>
+    <div class="modalBody"><ul id="modalBody" class="modalIssueList"></ul></div>
+    <div class="modalFooter"><button id="btnModalClose">Close</button></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

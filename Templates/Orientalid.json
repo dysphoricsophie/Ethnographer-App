@@ -1,0 +1,26 @@
+{
+  "name": "Orientalid",
+  "description": "Gracile long-headed phenotypic cluster of SW Asian and N African desert/steppe belt — Arabian Peninsula, Fertile Crescent, Levant, Persia, N Africa (Libyid sub-variant). Adapted to arid hot environments: lean frame, long narrow leptorrhine/aquiline nose (warming dry air), slightly darker skin than Mediterranid, wavy-to-curly dark hair. High body hair similar to Mediterranid. Arabid sub-variant: low flat skull, dolichocephalic. Iranid sub-variant: taller, higher vault. Lactase persistence moderate (~30–50%) — pastoralist heritage with less intense selection than N European cattle herders. Pre-1500 CE.",
+  "traits": {
+    "skin_colour":       { "binModes": [0,1,2,2,1], "peaks": [{"mu":2.3, "sigma":0.7, "amp":2.8}] },
+    "hair_colour":       { "binModes": [0,0,1,2],   "peaks": [{"mu":2.85,"sigma":0.5, "amp":3.2}] },
+    "hair_texture":      { "binModes": [0,1,2,2,1,0,0], "peaks": [{"mu":2.8,"sigma":0.8,"amp":2.5}] },
+    "body_hair":         { "binModes": [0,0,1,2,2], "peaks": [{"mu":3.4, "sigma":0.65,"amp":3.0}] },
+    "height":            { "binModes": [1,1,2,2,1], "peaks": [{"mu":2.3, "sigma":0.8, "amp":2.0}] },
+    "trunk_length":      { "binModes": [1,2,2,1,0], "peaks": [{"mu":2.0, "sigma":0.7, "amp":2.0}] },
+    "body_type":         { "binModes": [1,2,2,1,0], "peaks": [{"mu":1.3, "sigma":0.75,"amp":2.5}] },
+    "steatopygia":       { "binModes": [2,1,0,0,0], "peaks": [{"mu":0.05,"sigma":0.28,"amp":5.0}] },
+    "cephalic_index":    { "binModes": [1,2,2,1,0], "peaks": [{"mu":1.5, "sigma":0.8, "amp":2.2}] },
+    "head_height":       { "binModes": [2,2,1],     "peaks": [{"mu":0.6, "sigma":0.5, "amp":3.0}] },
+    "head_size":         { "binModes": [1,2,1],     "peaks": [{"mu":1.0, "sigma":0.55,"amp":2.2}] },
+    "nose_breadth":      { "binModes": [2,2,1,0],   "peaks": [{"mu":0.4, "sigma":0.52,"amp":3.5}] },
+    "face_breadth":      { "binModes": [0,1,2,2,1], "peaks": [{"mu":2.4, "sigma":0.8, "amp":2.0}] },
+    "prognathism":       { "binModes": [1,2,2,0],   "peaks": [{"mu":0.85,"sigma":0.6, "amp":2.8}] },
+    "eye_folds":         { "binModes": [2,2,1,0],   "peaks": [{"mu":0.35,"sigma":0.5, "amp":3.5}] },
+    "male_neoteny":      { "binModes": [1,2,2,1],   "peaks": [{"mu":1.2, "sigma":0.75,"amp":2.0}] },
+    "female_neoteny":    { "binModes": [0,1,2,2],   "peaks": [{"mu":1.9, "sigma":0.75,"amp":2.0}] },
+    "lactose_tolerance": { "binModes": [1,1,2,2,1], "peaks": [{"mu":2.3, "sigma":0.9, "amp":2.0}] },
+    "height_dimorphism": { "binModes": [1,2,1,0],   "peaks": [{"mu":1.3, "sigma":0.6, "amp":2.8}] },
+    "muscle_dimorphism": { "binModes": [0,1,2,1],   "peaks": [{"mu":1.9, "sigma":0.7, "amp":2.2}] }
+  }
+}

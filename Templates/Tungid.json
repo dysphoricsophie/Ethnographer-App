@@ -1,0 +1,26 @@
+{
+  "name": "Tungid",
+  "description": "Phenotypic cluster of Central and Northeast Asian populations — Mongolian steppe, Siberian taiga/tundra, Gobi. Associated with East Asian / ANE ancestry. Yellowish-olive skin, black coarse straight hair (EDAR 370A derived), extremely sparse body hair (EDAR pleiotropic), very broad flat face, strong Mongolian fold (cold/glare adaptation), brachycephalic skull, stocky robust frame with short limbs (Bergmann/Allen cold-climate body plan), near-zero lactase persistence. Gobid sub-variant: most extreme brachycephaly; Baykal sub-variant: somewhat longer-headed. Pre-1500 CE.",
+  "traits": {
+    "skin_colour":       { "binModes": [1,2,2,1,0], "peaks": [{"mu":1.8, "sigma":0.65,"amp":2.5}] },
+    "hair_colour":       { "binModes": [0,0,1,2],   "peaks": [{"mu":3.0, "sigma":0.22,"amp":5.0}] },
+    "hair_texture":      { "binModes": [2,1,0,0,0,0,0], "peaks": [{"mu":0.18,"sigma":0.42,"amp":4.5}] },
+    "body_hair":         { "binModes": [2,2,1,0,0], "peaks": [{"mu":0.3, "sigma":0.48,"amp":4.0}] },
+    "height":            { "binModes": [1,2,2,1,0], "peaks": [{"mu":1.6, "sigma":0.72,"amp":2.5}] },
+    "trunk_length":      { "binModes": [0,1,1,2,2], "peaks": [{"mu":3.4, "sigma":0.65,"amp":2.8}] },
+    "body_type":         { "binModes": [0,1,1,2,2], "peaks": [{"mu":3.3, "sigma":0.7, "amp":2.8}] },
+    "steatopygia":       { "binModes": [2,1,0,0,0], "peaks": [{"mu":0.05,"sigma":0.28,"amp":5.0}] },
+    "cephalic_index":    { "binModes": [0,0,1,2,2], "peaks": [{"mu":3.6, "sigma":0.6, "amp":3.2}] },
+    "head_height":       { "binModes": [2,1,0],     "peaks": [{"mu":0.15,"sigma":0.38,"amp":4.5}] },
+    "head_size":         { "binModes": [1,2,1],     "peaks": [{"mu":1.0, "sigma":0.5, "amp":2.2}] },
+    "nose_breadth":      { "binModes": [1,2,2,1],   "peaks": [{"mu":1.5, "sigma":0.7, "amp":2.2}] },
+    "face_breadth":      { "binModes": [0,0,1,2,2], "peaks": [{"mu":3.7, "sigma":0.6, "amp":3.2}] },
+    "prognathism":       { "binModes": [2,2,1,0],   "peaks": [{"mu":0.25,"sigma":0.45,"amp":4.0}] },
+    "eye_folds":         { "binModes": [0,1,2,2],   "peaks": [{"mu":2.85,"sigma":0.55,"amp":3.5}] },
+    "male_neoteny":      { "binModes": [0,1,2,2],   "peaks": [{"mu":2.55,"sigma":0.65,"amp":2.8}] },
+    "female_neoteny":    { "binModes": [0,0,1,2],   "peaks": [{"mu":2.8, "sigma":0.55,"amp":3.2}] },
+    "lactose_tolerance": { "binModes": [2,2,1,0,0], "peaks": [{"mu":0.3, "sigma":0.5, "amp":4.0}] },
+    "height_dimorphism": { "binModes": [1,2,1,0],   "peaks": [{"mu":1.1, "sigma":0.6, "amp":2.8}] },
+    "muscle_dimorphism": { "binModes": [1,2,2,0],   "peaks": [{"mu":1.4, "sigma":0.65,"amp":2.5}] }
+  }
+}

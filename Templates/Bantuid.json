@@ -1,0 +1,16 @@
+{
+  "_readme": "Sub-Saharan Africa phenotype. Import into Ethnographer using Import Profile.",
+  "_sourceUrl": "https://humanphenotypes.net/basic/Bantuid.html",
+  "_traitHighlights": {
+    "skin_colour": "Very dark to dark",
+    "hair_texture": "Tight curly to kinky",
+    "prognathism": "Moderate",
+    "nose_breadth": "Wide to very wide"
+  },
+  "_instructions": "To use: open Ethnographer, click 'Import Profile' and select this file. The preset will be added as a new group. All traits use default peak distributions \u2014 adjust to suit your worldbuilding needs.",
+  "app": "Ethnographer",
+  "version": 3,
+  "type": "template",
+  "name": "Bantuid",
+  "description": "Template: Bantuid. Edit the Description field after import. Source: https://humanphenotypes.net/basic/Bantuid.html"
+}

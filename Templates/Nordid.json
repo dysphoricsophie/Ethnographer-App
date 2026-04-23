@@ -1,0 +1,26 @@
+{
+  "name": "Nordid",
+  "description": "Phenotypic cluster of NW European populations — Scandinavia, British Isles, NW Germany, Low Countries. Post-Ice-Age re-colonisation by WHG and Corded Ware / Bell Beaker steppe ancestry. Very depigmented skin and hair (low UV-B → vitamin D selection). Dolichocephalic, high vault (hypsicephalic), tall lean frame, narrow leptorrhine nose, orthognathous jaw. Moderate-high body hair. Lactase persistence highest globally (~90–95%) — intensive northern cattle-pastoralist selection. Essentially zero steatopygia. Pre-1500 CE.",
+  "traits": {
+    "skin_colour":       { "binModes": [2,2,1,0,0], "peaks": [{"mu":0.35,"sigma":0.5, "amp":3.5}] },
+    "hair_colour":       { "binModes": [2,2,2,1],   "peaks": [{"mu":0.55,"sigma":0.8, "amp":2.8}] },
+    "hair_texture":      { "binModes": [1,2,2,1,0,0,0], "peaks": [{"mu":1.9,"sigma":0.8,"amp":2.5}] },
+    "body_hair":         { "binModes": [0,1,2,2,1], "peaks": [{"mu":2.8, "sigma":0.7, "amp":2.5}] },
+    "height":            { "binModes": [0,1,1,2,2], "peaks": [{"mu":3.5, "sigma":0.65,"amp":3.2}] },
+    "trunk_length":      { "binModes": [1,1,2,2,1], "peaks": [{"mu":2.5, "sigma":0.7, "amp":2.0}] },
+    "body_type":         { "binModes": [1,2,2,1,0], "peaks": [{"mu":1.5, "sigma":0.75,"amp":2.2}] },
+    "steatopygia":       { "binModes": [2,1,0,0,0], "peaks": [{"mu":0.05,"sigma":0.28,"amp":5.0}] },
+    "cephalic_index":    { "binModes": [2,2,1,0,0], "peaks": [{"mu":0.85,"sigma":0.6, "amp":3.0}] },
+    "head_height":       { "binModes": [0,1,2],     "peaks": [{"mu":1.95,"sigma":0.4, "amp":3.5}] },
+    "head_size":         { "binModes": [1,2,1],     "peaks": [{"mu":1.05,"sigma":0.5, "amp":2.5}] },
+    "nose_breadth":      { "binModes": [2,2,1,0],   "peaks": [{"mu":0.35,"sigma":0.5, "amp":3.5}] },
+    "face_breadth":      { "binModes": [1,2,2,1,0], "peaks": [{"mu":1.4, "sigma":0.75,"amp":2.2}] },
+    "prognathism":       { "binModes": [2,2,1,0],   "peaks": [{"mu":0.3, "sigma":0.45,"amp":3.8}] },
+    "eye_folds":         { "binModes": [2,1,0,0],   "peaks": [{"mu":0.03,"sigma":0.28,"amp":5.0}] },
+    "male_neoteny":      { "binModes": [1,2,2,1],   "peaks": [{"mu":1.2, "sigma":0.75,"amp":2.0}] },
+    "female_neoteny":    { "binModes": [0,1,2,2],   "peaks": [{"mu":2.2, "sigma":0.7, "amp":2.2}] },
+    "lactose_tolerance": { "binModes": [0,0,1,2,2], "peaks": [{"mu":4.0, "sigma":0.5, "amp":4.0}] },
+    "height_dimorphism": { "binModes": [1,2,2,1],   "peaks": [{"mu":1.5, "sigma":0.65,"amp":2.5}] },
+    "muscle_dimorphism": { "binModes": [0,2,2,1],   "peaks": [{"mu":1.6, "sigma":0.65,"amp":2.5}] }
+  }
+}
