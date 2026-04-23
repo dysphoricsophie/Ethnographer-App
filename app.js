@@ -1,5 +1,5 @@
 // app.js — application logic, no modules
-const{APP_NAME,STATE_KEY,AMP_MAX,BASE_FLOOR,DEFAULT_SETTINGS,DEFAULT_TRAITS,PRESET_GROUPS}=CFG;
+const{APP_NAME,APP_VERSION,STATE_KEY,AMP_MAX,BASE_FLOOR,DEFAULT_SETTINGS,DEFAULT_TRAITS,PRESET_GROUPS}=CFG;
 function clamp(x,a,b){return Math.max(a,Math.min(b,x));}
 function uid(){return Math.random().toString(16).slice(2)+Date.now().toString(16);}
 function gauss(x,mu,sigma){sigma=Math.max(0.12,sigma);const z=(x-mu)/sigma;return Math.exp(-0.5*z*z);}
@@ -46,7 +46,7 @@ function migrateState(s){
 }
 function buildDefaultState(){
   const groups=(PRESET_GROUPS||[]).length?PRESET_GROUPS.map(p=>groupFromPreset(p)):[defaultGroup("Example Group")];
-  return{app:APP_NAME,version:3,traits:deepClone(DEFAULT_TRAITS),settings:deepClone(DEFAULT_SETTINGS),groups,
+  return{app:APP_NAME,version:APP_VERSION,traits:deepClone(DEFAULT_TRAITS),settings:deepClone(DEFAULT_SETTINGS),groups,
     ui:{activeGroupId:groups[0].id,activeTraitKey:DEFAULT_TRAITS[0].key,selectedPeakId:null,showJson:true,templatesLocked:true}};
 }
 function saveState(s){try{localStorage.setItem(STATE_KEY,JSON.stringify(s));}catch(e){}}
@@ -294,7 +294,7 @@ els.btnModalClose.addEventListener("click",hideModal);els.modal.addEventListener
 function deleteGroupById(groups,id){for(let i=0;i<groups.length;i++){if(groups[i].id===id){groups.splice(i,1);return true;}if(groups[i].children&&deleteGroupById(groups[i].children,id))return true;}return false;}
 els.btnNewGroup.addEventListener("click",()=>{const g=defaultGroup();state.groups.push(g);state.ui.activeGroupId=g.id;saveState(state);rerender();});
 els.btnNewSubgroup.addEventListener("click",()=>{const parent=activeGroup();if(!parent.children)parent.children=[];const g=defaultGroup("Subgroup");parent.children.push(g);state.ui.activeGroupId=g.id;saveState(state);rerender();});
-els.btnDeleteGroup.addEventListener("click",()=>{if(state.groups.length<=1&&!state.groups[0].children?.length){alert("Cannot delete the last group.");return;}deleteGroupById(state.groups,state.ui.activeGroupId);const flat=flattenGroups(state.groups);state.ui.activeGroupId=flat[0]?.id;saveState(state);rerender();});
+els.btnDeleteGroup.addEventListener("click",()=>{if(!EthnoLogic.canDeleteTopLevelGroup(state.groups,state.ui.activeGroupId)){alert("Cannot delete the last top-level group.");return;}deleteGroupById(state.groups,state.ui.activeGroupId);const flat=flattenGroups(state.groups);state.ui.activeGroupId=flat[0]?.id;saveState(state);rerender();});
 els.btnDuplicateGroup.addEventListener("click",()=>{const src=activeGroup(),copy=deepClone(src);copy.id=uid();copy._isTemplate=false;copy.name=src.name+" (copy)";for(const t of state.traits)if(copy.traits[t.key])for(const p of copy.traits[t.key].peaks)p.id=uid();state.groups.push(copy);state.ui.activeGroupId=copy.id;saveState(state);rerender();});
 els.selGroup.addEventListener("change",()=>{state.ui.activeGroupId=els.selGroup.value;state.ui.selectedPeakId=null;saveState(state);rerender();});
 els.lockTemplatesToggle.addEventListener("change",()=>{state.ui.templatesLocked=els.lockTemplatesToggle.checked;saveState(state);rerender();});
@@ -310,7 +310,7 @@ els.toggleJson.addEventListener("change",()=>{state.ui.showJson=els.toggleJson.c
 els.btnExportProject.addEventListener("click",()=>{const issues=validateProject(state);if(issues.length){showModal(issues);return;}downloadFile("ethnographer_project.json",new Blob([JSON.stringify(state,null,2)],{type:"application/json"}));});
 els.btnImportProject.addEventListener("click",()=>els.fileProject.click());
 els.fileProject.addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const s=JSON.parse(ev.target.result);if(!s.groups)throw new Error("Not a project file");s.traits=deepClone(DEFAULT_TRAITS);if(!s.ui)s.ui={activeGroupId:s.groups[0]?.id,activeTraitKey:DEFAULT_TRAITS[0].key,selectedPeakId:null,showJson:true,templatesLocked:true};state=s;saveState(state);rerender();}catch(err){alert("Import failed: "+err.message);}};r.readAsText(f);e.target.value="";});
-els.btnExportProfile.addEventListener("click",()=>{const g=activeGroup(),issues=validateGroup(state,g,g.name);if(issues.length){showModal(issues);return;}const out={app:APP_NAME,version:3,name:g.name,description:g.description,traits:{}};for(const t of state.traits)out.traits[t.key]={peaks:g.traits[t.key]?.peaks.map(({mu,sigma,amp})=>({mu,sigma,amp})),binModes:g.traits[t.key]?.binModes};downloadFile(g.name.replace(/\s+/g,"_")+"_profile.json",new Blob([JSON.stringify(out,null,2)],{type:"application/json"}));});
+els.btnExportProfile.addEventListener("click",()=>{const g=activeGroup(),issues=validateGroup(state,g,g.name);if(issues.length){showModal(issues);return;}const out={app:APP_NAME,version:APP_VERSION,name:g.name,description:g.description,traits:{}};for(const t of state.traits)out.traits[t.key]={peaks:g.traits[t.key]?.peaks.map(({mu,sigma,amp})=>({mu,sigma,amp})),binModes:g.traits[t.key]?.binModes};downloadFile(g.name.replace(/\s+/g,"_")+"_profile.json",new Blob([JSON.stringify(out,null,2)],{type:"application/json"}));});
 els.btnImportProfile.addEventListener("click",()=>els.fileProfile.click());
 els.fileProfile.addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const src=JSON.parse(ev.target.result);const g=activeGroup();if(src.name)g.name=src.name;if(src.description)g.description=src.description;if(src.traits)for(const t of state.traits){const s=src.traits[t.key];if(!s)continue;g.traits[t.key]={binModes:s.binModes||Array(t.bins.length).fill(2),peaks:(s.peaks||[]).map(p=>({id:uid(),...p}))};}saveState(state);rerender();}catch(err){alert("Import failed: "+err.message);}};r.readAsText(f);e.target.value="";});
 els.btnDownloadCsv.addEventListener("click",()=>{const g=activeGroup(),rows=["Trait,Bin,Probability"];for(const t of state.traits){const probs=computeProbs(state,g,t.key);t.bins.forEach((b,i)=>rows.push(`"${t.name}","${b}",${(probs[i]*100).toFixed(2)}%`));}downloadFile(g.name.replace(/\s+/g,"_")+"_distribution.csv",new Blob([rows.join("\n")],{type:"text/csv"}));});

@@ -1,0 +1,7 @@
+{
+  "name": "ethnographer-app",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  }
+}
