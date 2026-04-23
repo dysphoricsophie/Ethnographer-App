@@ -543,6 +543,37 @@ function renderCompare(){
 const FACE_SKIN = ['#1C0E08','#4A2210','#7B4422','#B07845','#E8C090'];
 const FACE_HAIR = ['#0A0602','#251408','#5C3018','#9A6830','#C8A860'];
 
+
+const _faceSheetCache = new Map();
+let _faceRenderRAF = null;
+
+function _hashString(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0);
+}
+
+function _seededRand(seed) {
+  let x = seed || 1;
+  return function () {
+    x ^= x << 13; x ^= x >>> 17; x ^= x << 5;
+    return ((x >>> 0) / 4294967295);
+  };
+}
+
+function _faceTraitSnapshot() {
+  const keys = [
+    'skin_colour','hair_colour','hair_texture','cephalic_index','face_breadth','head_height','nose_breadth','prognathism',
+    'eye_folds','male_neoteny','female_neoteny','body_hair','height_dimorphism','steatopygia','body_type','height','trunk_length','muscle_dimorphism'
+  ];
+  const out = {};
+  for (const k of keys) out[k] = _faceEV(k);
+  return out;
+}
+
 function _faceEV(key) {
   const g = activeGroup(); ensureGroupShape(state, g);
   const probs = computeProbs(state, g, key);
@@ -573,35 +604,27 @@ function _clrRgb(clr) {
   return [parseInt(clr.slice(1,3),16),parseInt(clr.slice(3,5),16),parseInt(clr.slice(5,7),16)];
 }
 
-function renderFace() {
-  const g = activeGroup(); ensureGroupShape(state, g);
-  const mc = document.getElementById('faceCanvasMale');
-  const fc = document.getElementById('faceCanvasFemale');
-  if (!mc || !fc) return;
-  // Give layout a tick then draw
-  setTimeout(() => { _drawFace(mc, false); _drawFace(fc, true); }, 20);
-}
-
-function _drawFace(canvas, isFemale) {
+function _drawFace(canvas, isFemale, opts = {}) {
   const W = canvas.width, H = canvas.height;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, W, H);
 
   // ── Trait parameters (all 0→1) ──
-  const skinT = 1 - _faceEV('skin_colour');      // 1=light
-  const hairT = 1 - _faceEV('hair_colour');       // 1=light
-  const texT  = _faceEV('hair_texture');           // 1=coily
-  const ciT   = _faceEV('cephalic_index');         // 1=wide skull
-  const fbT   = _faceEV('face_breadth');           // 1=wide face
-  const hhT   = _faceEV('head_height');            // 1=high vault
-  const nbT   = _faceEV('nose_breadth');           // 1=wide nose
-  const prT   = _faceEV('prognathism');            // 1=projecting jaw
-  const efT   = _faceEV('eye_folds');              // 1=strong epicanthal fold
-  const mntT  = _faceEV('male_neoteny');           // 1=smooth brow
-  const fntT  = _faceEV('female_neoteny');         // 1=round/soft
-  const bhT   = _faceEV('body_hair');              // 1=dense (beard)
-  const hsTol = _faceEV('height_dimorphism');      // dimorphism hint
-  const stT   = _faceEV('steatopygia');            // unused in face but reserved
+  const traits = opts.traits || _faceTraitSnapshot();
+  const skinT = 1 - traits.skin_colour;      // 1=light
+  const hairT = 1 - traits.hair_colour;       // 1=light
+  const texT  = traits.hair_texture;           // 1=coily
+  const ciT   = traits.cephalic_index;         // 1=wide skull
+  const fbT   = traits.face_breadth;           // 1=wide face
+  const hhT   = traits.head_height;            // 1=high vault
+  const nbT   = traits.nose_breadth;           // 1=wide nose
+  const prT   = traits.prognathism;            // 1=projecting jaw
+  const efT   = traits.eye_folds;              // 1=strong epicanthal fold
+  const mntT  = traits.male_neoteny;           // 1=smooth brow
+  const fntT  = traits.female_neoteny;         // 1=round/soft
+  const bhT   = traits.body_hair;              // 1=dense (beard)
+  const hsTol = traits.height_dimorphism;      // dimorphism hint
+  const stT   = traits.steatopygia;            // unused in face but reserved
 
   const neoT  = isFemale ? fntT : mntT;
   // Brow ridge: male only, strong when low neoteny + low prognathism
@@ -1000,9 +1023,11 @@ function _drawFace(canvas, isFemale) {
     // Individual stubble dots for density
     if (bhT > 0.42) {
       const dots = Math.round(80*bA);
+      const seed = _hashString(JSON.stringify({isFemale, bhT, fw, fh, prT, nbT}));
+      const rand = _seededRand(seed);
       for (let i=0; i<dots; i++) {
-        const px = cx+(Math.random()-.5)*fw*1.28;
-        const py = lipY-upLipH*2+Math.random()*fh*.42;
+        const px = cx+(rand()-.5)*fw*1.28;
+        const py = lipY-upLipH*2+rand()*fh*.42;
         const dx=(px-cx)/fw, dy=(py-(cy+fh*.18))/(fh*.3);
         if(dx*dx+dy*dy>1.05) continue;
         ctx.beginPath(); ctx.arc(px, py, .8+bA*.8, 0, Math.PI*2);
@@ -1052,7 +1077,7 @@ function _drawFace(canvas, isFemale) {
   }
 
   // ── Group label watermark ──
-  const grpName = (document.getElementById('selGroup')?.options[document.getElementById('selGroup')?.selectedIndex]?.text||'').trim();
+  const grpName = (opts.groupLabel || document.getElementById('selGroup')?.options[document.getElementById('selGroup')?.selectedIndex]?.text || '').trim();
   ctx.save();
   ctx.font='bold 10px system-ui,sans-serif';
   ctx.fillStyle='rgba(0,0,0,.28)';
@@ -1065,24 +1090,25 @@ function _drawFace(canvas, isFemale) {
 
 
 
-function _faceBodyTraits(isFemale){
-  const skinT=1-_faceEV('skin_colour');
-  const hairT=1-_faceEV('hair_colour');
-  const texT=_faceEV('hair_texture');
-  const ciT=_faceEV('cephalic_index');
-  const fbT=_faceEV('face_breadth');
-  const hhT=_faceEV('head_height');
-  const nbT=_faceEV('nose_breadth');
-  const prT=_faceEV('prognathism');
-  const eyeT=_faceEV('eye_folds');
-  const bodyType=_faceEV('body_type');
-  const heightT=_faceEV('height');
-  const trunkT=_faceEV('trunk_length');
-  const steat=_faceEV('steatopygia');
-  const maleNeo=_faceEV('male_neoteny');
-  const femaleNeo=_faceEV('female_neoteny');
-  const heightDim=_faceEV('height_dimorphism');
-  const muscleDim=_faceEV('muscle_dimorphism');
+function _faceBodyTraits(isFemale, traits = null){
+  const src = traits || _faceTraitSnapshot();
+  const skinT=1-src.skin_colour;
+  const hairT=1-src.hair_colour;
+  const texT=src.hair_texture;
+  const ciT=src.cephalic_index;
+  const fbT=src.face_breadth;
+  const hhT=src.head_height;
+  const nbT=src.nose_breadth;
+  const prT=src.prognathism;
+  const eyeT=src.eye_folds;
+  const bodyType=src.body_type;
+  const heightT=src.height;
+  const trunkT=src.trunk_length;
+  const steat=src.steatopygia;
+  const maleNeo=src.male_neoteny;
+  const femaleNeo=src.female_neoteny;
+  const heightDim=src.height_dimorphism;
+  const muscleDim=src.muscle_dimorphism;
   const neoT=isFemale?femaleNeo:maleNeo;
   const bothNeo=(maleNeo+femaleNeo)/2;
   const maleSteatGate = Math.max(0, (0.64-bodyType)/0.64) * Math.max(0, (0.58-heightDim)/0.58) * Math.max(0, (0.58-muscleDim)/0.58) * Math.max(0, (0.7-bothNeo)/0.7);
@@ -1097,11 +1123,22 @@ function _fitFaceCanvas(canvas){
   const targetH=Math.round(targetW*0.71);
   if(canvas.width!==targetW||canvas.height!==targetH){ canvas.width=targetW; canvas.height=targetH; }
 }
-function _drawInsetFace(ctx,x,y,w,h,isFemale){
-  const tmp=document.createElement('canvas');
-  tmp.width=Math.max(220, Math.round(w*1.22));
-  tmp.height=Math.max(280, Math.round(h*1.22));
-  _drawFace(tmp,isFemale);
+function _drawInsetFace(ctx,x,y,w,h,isFemale,traits,groupLabel){
+  const tw=Math.max(220, Math.round(w*1.22));
+  const th=Math.max(280, Math.round(h*1.22));
+  const cacheKey = `${isFemale?'F':'M'}:${tw}x${th}:${_hashString(JSON.stringify(traits||{}))}`;
+  let tmp=_faceSheetCache.get(cacheKey);
+  if(!tmp){
+    tmp=document.createElement('canvas');
+    tmp.width=tw;
+    tmp.height=th;
+    _drawFace(tmp,isFemale,{traits,groupLabel});
+    _faceSheetCache.set(cacheKey,tmp);
+    if(_faceSheetCache.size>8){
+      const first=_faceSheetCache.keys().next().value;
+      _faceSheetCache.delete(first);
+    }
+  }
   ctx.save();
   ctx.beginPath(); ctx.roundRect(x,y,w,h,14); ctx.clip();
   ctx.drawImage(tmp,0,0,tmp.width,tmp.height,x,y,w,h);
@@ -1310,10 +1347,10 @@ function _drawProfileFigure(ctx,cx,baseY,headH,tr,isFemale){
   }
   ctx.restore();
 }
-function _drawFigureSheet(canvas,isFemale){
+function _drawFigureSheet(canvas,isFemale,traits,groupLabel){
   const ctx=canvas.getContext('2d');
   const W=canvas.width,H=canvas.height;
-  const tr=_faceBodyTraits(isFemale);
+  const tr=_faceBodyTraits(isFemale, traits);
   ctx.clearRect(0,0,W,H);
   const bg=ctx.createLinearGradient(0,0,0,H);
   bg.addColorStop(0,'#f4ecdf'); bg.addColorStop(1,'#ddd2c4');
@@ -1323,7 +1360,7 @@ function _drawFigureSheet(canvas,isFemale){
   for(let y=0;y<H;y+=24) ctx.fillRect(0,y,W,1);
 
   const inset={x:22,y:18,w:176,h:216};
-  _drawInsetFace(ctx,inset.x,inset.y,inset.w,inset.h,isFemale);
+  _drawInsetFace(ctx,inset.x,inset.y,inset.w,inset.h,isFemale,traits,groupLabel);
 
   const baseY=H-52;
   const headH=Math.min(56, Math.max(46, H/9.7));
@@ -1354,7 +1391,14 @@ function renderFace(){
   const fc=document.getElementById('faceCanvasFemale');
   if(!mc||!fc) return;
   _fitFaceCanvas(mc); _fitFaceCanvas(fc);
-  setTimeout(()=>{ _drawFigureSheet(mc,false); _drawFigureSheet(fc,true); }, 20);
+  const traits = _faceTraitSnapshot();
+  const groupLabel = (g?.name || '').trim();
+  if(_faceRenderRAF) cancelAnimationFrame(_faceRenderRAF);
+  _faceRenderRAF=requestAnimationFrame(()=>{
+    _drawFigureSheet(mc,false,traits,groupLabel);
+    _drawFigureSheet(fc,true,traits,groupLabel);
+    _faceRenderRAF=null;
+  });
 }
 
 // ════════════════════════════════════════════════════════════════
