@@ -1,6 +1,6 @@
 // config.js — globals, no modules
 const CFG={
-  APP_NAME:"Ethnographer",STATE_KEY:"ethnographer_v5_state",AMP_MAX:5,BASE_FLOOR:0.02,
+  APP_NAME:"Ethnographer",APP_VERSION:5,STATE_KEY:"ethnographer_v5_state",AMP_MAX:5,BASE_FLOOR:0.02,
   DEFAULT_SETTINGS:{spillover:0.25},
   DEFAULT_TRAITS:[
     {category:"Hair & Skin",key:"skin_colour",name:"Skin Colour",
@@ -49,7 +49,7 @@ const CFG={
     
 	{category:"Facial",key:"nose_breadth",name:"Nose Breadth",
      colors:["#e9d5ff","#d8b4fe","#c084fc","#a855f7"],
-     bins:["Hyperleptorrhine","Leptorrhine ","Platyrrhine ","Hyperplatyrrhine "]},
+     bins:["Hyperleptorrhine","Leptorrhine","Platyrrhine","Hyperplatyrrhine"]},
     
 	{category:"Facial",key:"face_breadth",name:"Face Breadth",
      colors:["#cffafe","#a5f3fc","#67e8f9","#22d3ee","#06b6d4"],
