@@ -16,19 +16,17 @@
       </div>
       <div class="sideSection">
         <div class="sideLabel">Project</div>
-        <div class="sideActions">
-          <button id="btnExportProject" class="btnFull primary">↓ Export Project</button>
-          <button id="btnImportProject" class="btnFull">↑ Import Project</button>
-          <input id="fileProject" type="file" accept="application/json" hidden/>
-        </div>
-        <div class="small" style="margin-top:8px">Autosaves to browser storage. Export for portable files.</div>
+        <div class="small">Autosaves to browser storage. Use Export / Import in the toolbar.</div>
       </div>
       <div class="sideSection">
         <div class="sideLabel">Navigation</div>
         <nav class="nav">
-          <a class="navItem active" href="#">Editor</a>
-          <a class="navItem" href="#" aria-disabled="true">Trait Library <span style="font-size:10px;opacity:.5">soon</span></a>
-          <a class="navItem" href="#" aria-disabled="true">Compare <span style="font-size:10px;opacity:.5">soon</span></a>
+          <a class="navItem active" href="#" id="navEditor">Editor</a>
+          <a class="navItem" href="#" id="navLibrary">Trait Library</a>
+          <a class="navItem" href="#" id="navCompare">Compare</a>
+          <a class="navItem" href="#" id="navFace">Face Preview</a>
+          <a class="navItem" href="#" id="navAdmix">Admixture</a>
+          <a class="navItem" href="#" id="navLineage">Lineage</a>
         </nav>
       </div>
       <div class="sideSection">
@@ -46,10 +44,22 @@
         </div>
       </div>
     </div>
-    <div class="sideFooter">v5 · Pre-1500 CE phenotypic distributions</div>
+      <div class="sideSection bankSection">
+        <div class="sideLabel">Phenotype Bank <span class="bankCountBadge" id="bankCount">0</span></div>
+        <div class="bankImportRow">
+          <button class="bankImportBtn" id="btnBankFiles" title="Import one or more JSON profiles">📄 Files</button>
+          <button class="bankImportBtn" id="btnBankFolder" title="Import entire folder of JSON profiles">📁 Folder</button>
+        </div>
+        <input id="fileBankSingle" type="file" accept=".json" multiple hidden/>
+        <input id="fileBankFolder" type="file" accept=".json" webkitdirectory multiple hidden/>
+        <div id="bankList" class="bankList"><div class="bankEmpty">No profiles in bank yet.</div></div>
+      </div>
+    <div class="sideFooter">v3 · Pre-1500 CE phenotypic distributions</div>
   </aside>
 
   <div class="main">
+    <!-- ══ TAB: EDITOR ══ -->
+    <div id="tabEditor" class="tabPage active">
     <header class="mainHeader">
       <div>
         <div class="pageTitle">Phenotype Distribution Editor</div>
@@ -62,17 +72,15 @@
       <div class="toolbarLeft">
         <button id="btnNewGroup">+ New Group</button>
         <button id="btnNewSubgroup">+ Subgroup</button>
+        <button id="btnCreateFromTemplate" class="primary" style="margin-left:4px">⊕ From Template</button>
         <div class="toolbarDivider"></div>
         <select id="selGroup"></select>
-        <span id="lockBadge" class="lockBadge hidden">🔒 Template</span>
-        <button id="btnDuplicateGroup" class="ghost" style="display:none">⎘ Duplicate</button>
         <button id="btnDeleteGroup" class="danger">Delete</button>
       </div>
       <div class="toolbarRight">
-        <label class="lockToggleLabel">
-          <input id="lockTemplatesToggle" type="checkbox" checked/>
-          <span>Lock Templates</span>
-        </label>
+        <button id="btnExportProject" class="ghost">↓ Export</button>
+        <button id="btnImportProject" class="ghost">↑ Import</button>
+        <input id="fileProject" type="file" accept="application/json" hidden/>
         <div class="toolbarDivider"></div>
         <span class="lab">Spillover</span>
         <input id="spillover" type="range" min="0" max="0.6" step="0.01"/>
@@ -152,8 +160,142 @@
         Autosaved locally · Export Project for portable files · Templates = pre-1500 CE phenotypic distributions, not racial classification
       </footer>
     </div>
-  </div>
-</div>
+  </div><!-- end tabEditor -->
+
+    <!-- ══ TAB: TRAIT LIBRARY ══ -->
+    <div id="tabLibrary" class="tabPage">
+      <header class="mainHeader">
+        <div>
+          <div class="pageTitle">Trait Library</div>
+          <div class="pageSub">All 20 traits grouped by category. Click any card to jump to that trait in the Editor.</div>
+        </div>
+      </header>
+      <div class="libContent" id="libContent"></div>
+    </div>
+
+    <!-- ══ TAB: COMPARE ══ -->
+    <div id="tabCompare" class="tabPage">
+      <header class="mainHeader">
+        <div>
+          <div class="pageTitle">Compare Groups</div>
+          <div class="pageSub">Side-by-side distribution charts for every trait between two groups.</div>
+        </div>
+      </header>
+      <div class="cmpToolbar">
+        <span class="lab">Group A</span>
+        <select id="cmpSelA"></select>
+        <span class="lab" style="margin-left:8px">Group B</span>
+        <select id="cmpSelB"></select>
+      </div>
+      <div class="cmpContent" id="cmpContent"></div>
+    </div>
+
+    <!-- ══ TAB: FACE PREVIEW ══ -->
+    <div id="tabFace" class="tabPage">
+      <header class="mainHeader">
+        <div>
+          <div class="pageTitle">Anthropometric Figure Preview</div>
+          <div class="pageSub">Two-view anatomical sheets derived from the active group's trait distributions, with a face inset, front view, and lateral profile for male and female figures.</div>
+        </div>
+      </header>
+      <div class="faceContent">
+        <div class="facePair">
+          <div class="faceCard">
+            <div class="faceCardLabel">Male figure</div>
+            <canvas id="faceCanvasMale" class="faceCanvasEl" width="760" height="540"></canvas>
+          </div>
+          <div class="faceCard">
+            <div class="faceCardLabel">Female figure</div>
+            <canvas id="faceCanvasFemale" class="faceCanvasEl" width="760" height="540"></canvas>
+          </div>
+        </div>
+        <div class="faceNote">Medical-style population composite. Each sheet shows a zoomed facial inset at upper left, a front body view, and a lateral profile. Male gluteofemoral deposition is allowed to appear when population-wide steatopygia is high and sexual dimorphism, endomorphy, and neoteny remain comparatively low. Figures are drawn with minimal underwear coverage for safe display while preserving anthropometric structure.</div>
+      </div>
+    </div>
+
+
+    <!-- ══ TAB: ADMIXTURE ══ -->
+    <div id="tabAdmix" class="tabPage">
+      <header class="mainHeader">
+        <div>
+          <div class="pageTitle">Admixture Calculator</div>
+          <div class="pageSub">Mix 2–4 groups from your editor or phenotype bank. Each mixed distribution is a weighted average of constituent probability vectors — statistically equivalent to sampling from a blended population.</div>
+        </div>
+      </header>
+      <div class="admixContent">
+        <div class="admixGrid">
+          <section class="card" id="admixSrcCard">
+            <div class="cardTitle" style="margin-bottom:12px">Source Groups</div>
+            <div id="admixSourceList"></div>
+            <button id="admixAddSource" class="ghost" style="width:100%;margin-top:4px">+ Add source (max 4)</button>
+            <div class="admixTotalRow">
+              Total: <span id="admixTotal" class="admixBadge warn">0%</span>
+              <button id="admixNorm" class="ghost" style="font-size:11px;margin-left:auto">Normalize to 100%</button>
+            </div>
+          </section>
+          <section class="card admixPreviewCard">
+            <div class="admixTraitRow">
+              <div class="cardTitle">Preview</div>
+              <select id="admixTraitSel" class="admixTraitSel"></select>
+            </div>
+            <canvas id="admixCanvas" height="140" style="display:block;width:100%;border-radius:7px;background:var(--surface2)"></canvas>
+            <table class="admixTable">
+              <thead><tr><th>Bin</th><th>Mixed %</th><th style="width:35%">Bar</th></tr></thead>
+              <tbody id="admixTableBody"></tbody>
+            </table>
+          </section>
+        </div>
+        <div class="admixActions">
+          <input id="admixSaveName" class="admixNameInput" placeholder="Name for new admixed group…"/>
+          <button id="admixSaveGroup" class="primary">⊕ Add to Editor</button>
+          <button id="admixAddToBank" class="ghost">⊕ Add to Bank</button>
+          <button id="admixExport" class="ghost">↓ Export JSON</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ TAB: LINEAGE ══ -->
+    <div id="tabLineage" class="tabPage">
+      <header class="mainHeader">
+        <div>
+          <div class="pageTitle">Genealogical Lineage</div>
+          <div class="pageSub">Build admixture chains across generations. Nodes are phenotypic groups; edges are admixture events with percentage weights.</div>
+        </div>
+        <div class="statusPill"><span class="ok" id="linNodeCount">0 nodes</span></div>
+      </header>
+      <div class="linContent">
+        <div class="linToolbar">
+          <button id="linAddFounder">＋ Founder Node</button>
+          <button id="linAddAdmixNode" class="primary">⊕ Admixture Event</button>
+          <div class="toolbarDivider"></div>
+          <button id="linDeleteSelected" class="danger" disabled>✕ Delete Selected</button>
+          <button id="linExport" class="ghost" style="margin-left:auto">↓ Export Lineage</button>
+          <button id="linClear" class="danger ghost">Clear All</button>
+        </div>
+        <div class="linSplit">
+          <div class="linCanvasArea" id="linCanvasArea">
+            <canvas id="linCanvas" class="linCanvas" width="1200" height="700"></canvas>
+          </div>
+          <div class="linPanel" id="linPanel">
+            <div class="linPanelTitle">Lineage Tree</div>
+            <div class="linPanelEmpty" id="linPanelHint">Add a Founder Node to begin. Drag nodes to reposition. Click a node to inspect it.</div>
+            <div id="linPanelDetail" style="display:none;flex-direction:column;gap:10px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lineage node modal -->
+    <div id="linModal" class="linModal hidden">
+      <div class="linModalCard">
+        <div class="modalHeader"><div class="modalIcon" id="linModalIcon">🌿</div><div class="modalTitle" id="linModalTitle">Add Node</div></div>
+        <div class="modalBody" id="linModalBody" style="display:flex;flex-direction:column;gap:12px;"></div>
+        <div class="modalFooter" style="gap:8px"><button id="linModalCancel" class="ghost">Cancel</button><button id="linModalConfirm" class="primary">Add to Tree</button></div>
+      </div>
+    </div>
+    <div class="bankToast" id="bankToast"></div>
+
+  </div><!-- end .main -->
 
 <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
   <div class="modalCard">
@@ -163,6 +305,35 @@
   </div>
 </div>
 
+<div id="tplModal" class="tplModal hidden" role="dialog" aria-modal="true">
+  <div class="tplModalCard">
+    <div class="modalHeader"><div class="modalIcon">⊕</div><div class="modalTitle">Create from Template</div></div>
+    <div class="tplModalBody">
+      <div class="tplLeft">
+        <div>
+          <div class="tplLabel">Template</div>
+          <select id="tplSelect" class="tplSelect"></select>
+        </div>
+        <div>
+          <div class="tplLabel">Name</div>
+          <input id="tplName" class="tplInput" type="text" placeholder="Group name…"/>
+        </div>
+        <label class="tplCheckRow">
+          <input id="tplClearDesc" type="checkbox"/>
+          <span>Delete template description</span>
+        </label>
+      </div>
+      <div class="tplRight">
+        <div class="tplRightTitle">Template description</div>
+        <div id="tplDescPreview" class="tplDesc">Select a template to see its description.</div>
+      </div>
+    </div>
+    <div class="modalFooter" style="gap:8px">
+      <button id="btnTplCancel" class="ghost">Cancel</button>
+      <button id="btnTplConfirm" class="primary">Create Group</button>
+    </div>
+  </div>
+</div>
 <script src="config.js"></script>
 <script src="logic.js"></script>
 <script src="app.js"></script>
