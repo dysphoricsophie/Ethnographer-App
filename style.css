@@ -98,6 +98,7 @@ select { padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border);
 input[type=range] { accent-color: var(--accent); width: 110px; }
 input[type=number] { width: 60px; padding: 4px 6px; border-radius: 5px;
   border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 12px; }
+.spilloverBox { display:flex; align-items:center; gap:8px; padding: 6px 8px; border:1px solid var(--border); border-radius: 10px; background: rgba(157,135,210,.06); }
 
 .lockBadge { display: inline-flex; align-items: center; gap: 4px;
   background: rgba(234,204,180,.1); color: var(--warn); border: 1px solid rgba(234,204,180,.3);
