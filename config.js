@@ -1,6 +1,6 @@
 // config.js — globals, no modules
 const CFG={
-  APP_NAME:"Ethnographer",STATE_KEY:"ethnographer_v5_state",AMP_MAX:5,BASE_FLOOR:0.02,
+  APP_NAME:"Ethnographer",APP_VERSION:5,STATE_KEY:"ethnographer_v5_state",AMP_MAX:5,BASE_FLOOR:0.02,
   DEFAULT_SETTINGS:{spillover:0.25},
   DEFAULT_TRAITS:[
     {category:"Hair & Skin",key:"skin_colour",name:"Skin Colour",
