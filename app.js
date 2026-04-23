@@ -87,6 +87,7 @@ const els={
   btnExportProfile:document.getElementById("btnExportProfile"),btnImportProfile:document.getElementById("btnImportProfile"),fileProfile:document.getElementById("fileProfile"),
   btnDownloadCsv:document.getElementById("btnDownloadCsv"),btnScreenshot:document.getElementById("btnScreenshot"),peakControls:document.getElementById("peakControls"),
   description:document.getElementById("description"),completionStatus:document.getElementById("completionStatus"),toggleJson:document.getElementById("toggleJson"),
+  activeObjectHeader:document.getElementById("activeObjectHeader"),btnHelpToggle:document.getElementById("btnHelpToggle"),helpPanel:document.getElementById("helpPanel"),
   debug:document.getElementById("debug"),modal:document.getElementById("modal"),modalBody:document.getElementById("modalBody"),btnModalClose:document.getElementById("btnModalClose"),
 };
 
@@ -310,6 +311,14 @@ function renderJsonPreview(){
   }
   els.debug.textContent=JSON.stringify(out,null,2);
 }
+function renderActiveObjectHeader(){
+  if(!els.activeObjectHeader)return;
+  const g=activeGroup(),t=activeTrait();
+  const tr=g?.traits?.[t.key];
+  const peakIdx=Math.max(0,(tr?.peaks||[]).findIndex(p=>p.id===state.ui.selectedPeakId));
+  const peakLabel=tr?.peaks?.length?`Peak ${peakIdx+1}`:"None";
+  els.activeObjectHeader.textContent=`Editing: ${g?.name||"Group"} · Active trait: ${t?.name||"-"} · Selected peak: ${peakLabel}`;
+}
 function isTraitComplete(state,g,key){
   const t=traitByKey(state,key),tr=g.traits[key],n=t.bins.length;
   if(!Array.isArray(tr.peaks)||!tr.peaks.length)return false;if(tr.peaks.every(p=>(p.amp??0)<=0.001))return false;
@@ -318,7 +327,7 @@ function isTraitComplete(state,g,key){
 }
 function rerender(full=true){ if(state.ui.activeTab==='Face') setTimeout(renderFace,10);
   if(full){renderGroupList();renderLockUI();renderTraitList();}
-  renderCompletion();renderBins();drawCurve();syncPeakSliders();renderPeakControls();renderJsonPreview();
+  renderCompletion();renderBins();drawCurve();syncPeakSliders();renderPeakControls();renderJsonPreview();renderActiveObjectHeader();
   els.description.value=activeGroup().description||"";els.spillover.value=String(state.settings.spillover);els.spilloverNum.value=String(state.settings.spillover);
 }
 function validateGroup(state,g,label){const issues=[];if(!(g.name||"").trim())issues.push(label+": Name empty.");if(!(g.description||"").trim())issues.push(label+": Description required.");for(const t of state.traits)if(!isTraitComplete(state,g,t.key))issues.push(label+": Incomplete trait: "+t.name);return issues;}
@@ -372,6 +381,12 @@ els.btnRemovePeak.addEventListener("click",()=>{if(isTemplateLocked(activeGroup(
 els.btnNormalize.addEventListener("click",()=>{if(isTemplateLocked(activeGroup()))return;const g=activeGroup(),t=activeTrait(),tr=g.traits[t.key];const total=tr.peaks.reduce((s,p)=>s+p.amp,0);if(total>0)tr.peaks.forEach(p=>p.amp=p.amp/total*AMP_MAX*0.6);saveState(state);renderPeakControls();updateCurveAndBins();});
 els.btnRandom.addEventListener("click",()=>{if(isTemplateLocked(activeGroup()))return;const g=activeGroup(),t=activeTrait(),tr=g.traits[t.key],n=t.bins.length;for(const p of tr.peaks){p.mu=Math.random()*(n-1);p.sigma=0.3+Math.random()*2;p.amp=0.5+Math.random()*(AMP_MAX-0.5);}saveState(state);renderPeakControls();updateCurveAndBins();});
 els.toggleJson.addEventListener("change",()=>{state.ui.showJson=els.toggleJson.checked;saveState(state);renderJsonPreview();});
+if(els.btnHelpToggle&&els.helpPanel){
+  els.btnHelpToggle.addEventListener("click",()=>{
+    els.helpPanel.classList.toggle("hidden");
+    els.btnHelpToggle.textContent=els.helpPanel.classList.contains("hidden")?"? Help & guidance":"Hide help";
+  });
+}
 document.getElementById("btnExportProject").addEventListener("click",()=>{const issues=validateProject(state);if(issues.length){showModal(issues);return;}const exportState=Object.assign({},state,{groups:state.groups.filter(g=>!g._isTemplate)});const firstName=exportState.groups[0]?.name||'project';const safeName=firstName.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_-]/g,'');downloadFile(safeName+"_project.json",new Blob([JSON.stringify(exportState,null,2)],{type:"application/json"}));});
 document.getElementById("btnImportProject").addEventListener("click",()=>document.getElementById("fileProject").click());
 document.getElementById("fileProject").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const s=JSON.parse(ev.target.result);if(!s.groups)throw new Error("Not a project file");s.traits=deepClone(DEFAULT_TRAITS);if(!s.ui)s.ui={activeGroupId:s.groups[0]?.id,activeTraitKey:DEFAULT_TRAITS[0].key,selectedPeakId:null,showJson:true,templatesLocked:true};state=s;saveState(state);rerender();}catch(err){alert("Import failed: "+err.message);}};r.readAsText(f);e.target.value="";});
