@@ -10,45 +10,49 @@
 <div class="layout">
   <aside class="sidebar">
     <div class="sideTop">
-      <div class="brand">
-        <div class="brandMark">E</div>
-        <div><div class="brandName">Ethnographer</div><div class="brandSub">Phenotype distribution editor</div></div>
+      <div class="appIdentity">
+        <div class="brand">
+          <div class="brandMark">E</div>
+          <div>
+            <div class="brandName">Ethnographer</div>
+            <div class="brandSub">Phenotype Distribution Editor</div>
+          </div>
+        </div>
+        <div class="projectMeta">Project: <strong>Active workspace</strong></div>
+        <div class="autosaveTiny">Autosave enabled · Browser storage</div>
       </div>
       <div class="sideSection">
-        <div class="sideLabel">Project</div>
-        <div class="small">Autosaves to browser storage. Use Export / Import in the toolbar.</div>
-      </div>
-      <div class="sideSection">
-        <div class="sideLabel">Navigation</div>
+        <div class="sideLabel">Workspace</div>
         <nav class="nav">
-          <a class="navItem active" href="#" id="navEditor">Editor</a>
-          <a class="navItem" href="#" id="navLibrary">Trait Library</a>
-          <a class="navItem" href="#" id="navCompare">Compare</a>
-          <a class="navItem" href="#" id="navFace">Face Preview</a>
-          <a class="navItem" href="#" id="navAdmix">Admixture</a>
-          <a class="navItem" href="#" id="navLineage">Lineage</a>
+          <a class="navItem active" href="#" id="navEditor"><span>◉</span>Editor</a>
+          <a class="navItem" href="#" id="navLibrary"><span>◈</span>Trait library</a>
+          <a class="navItem" href="#" id="navCompare"><span>◫</span>Compare</a>
+          <a class="navItem" href="#" id="navFace"><span>◌</span>Face preview</a>
+          <a class="navItem" href="#" id="navAdmix"><span>◎</span>Admixture</a>
+          <a class="navItem" href="#" id="navLineage"><span>◇</span>Lineage</a>
         </nav>
       </div>
       <div class="sideSection">
-        <div class="sideLabel">Interaction</div>
-        <div class="tipBox">
-          <div style="margin-bottom:4px"><kbd>Click</kbd> bin → Selected / Allowed</div>
-          <div><kbd>Shift+Click</kbd> → Excluded</div>
-          <div style="margin-top:5px">Drag peak dot → center &amp; weight<br>Drag ring → width</div>
-        </div>
-      </div>
-      <div class="sideSection">
-        <div class="sideLabel">About</div>
-        <div class="tipBox" style="font-size:10.5px;line-height:1.6">
-          Templates represent <strong style="color:var(--text)">pre-1500 CE</strong> phenotypic clusters. Bottom-up grouping by trait co-occurrence under shared environmental pressures — not racial or geographic classification.
-        </div>
+        <details class="helpPanel">
+          <summary>Help &amp; interaction</summary>
+          <div class="tipBox">
+            <div style="margin-bottom:4px"><kbd>Click</kbd> bin → Selected / Allowed</div>
+            <div><kbd>Shift+Click</kbd> → Excluded</div>
+            <div style="margin-top:5px">Drag peak dot → center &amp; weight<br>Drag ring → width</div>
+          </div>
+          <div class="tipBox" style="font-size:10.5px;line-height:1.6;margin-top:8px">
+            Templates represent <strong style="color:var(--text)">pre-1500 CE</strong> phenotypic clusters. Bottom-up grouping by trait co-occurrence under shared environmental pressures — not racial or geographic classification.
+          </div>
+        </details>
       </div>
     </div>
       <div class="sideSection bankSection">
         <div class="sideLabel">Phenotype Bank <span class="bankCountBadge" id="bankCount">0</span></div>
+        <input class="bankSearch" placeholder="Search profiles" />
+        <div class="bankTabs"><button class="bankTab active">Profiles</button><button class="bankTab">Folders</button></div>
         <div class="bankImportRow">
-          <button class="bankImportBtn" id="btnBankFiles" title="Import one or more JSON profiles">📄 Files</button>
-          <button class="bankImportBtn" id="btnBankFolder" title="Import entire folder of JSON profiles">📁 Folder</button>
+          <button class="bankImportBtn" id="btnBankFiles" title="Import one or more JSON profiles">Import files</button>
+          <button class="bankImportBtn" id="btnBankFolder" title="Import entire folder of JSON profiles">Import folder</button>
         </div>
         <input id="fileBankSingle" type="file" accept=".json" multiple hidden/>
         <input id="fileBankFolder" type="file" accept=".json" webkitdirectory multiple hidden/>
@@ -61,30 +65,36 @@
     <!-- ══ TAB: EDITOR ══ -->
     <div id="tabEditor" class="tabPage active">
     <header class="mainHeader">
-      <div>
+      <div class="headerZone left">
         <div class="pageTitle">Phenotype Distribution Editor</div>
-        <div class="pageSub">Model trait frequency distributions for pre-colonial phenotypic groups. Trait co-occurrence clustering — not racial or regional classification.</div>
+        <div class="pageSub">Model trait frequency distributions for pre-colonial phenotypic groups.</div>
+        <div class="autosaveTiny">Trait co-occurrence clustering, not racial or regional classification.</div>
       </div>
-      <div class="statusPill" id="completionStatus"></div>
+      <div class="headerZone center">
+        <div class="actionCluster">
+          <button id="btnNewGroup" class="primary">+ New group</button>
+          <button id="btnNewSubgroup">+ Subgroup</button>
+          <button id="btnCreateFromTemplate">Use template</button>
+          <select id="selGroup"></select>
+          <button id="btnDeleteGroup" class="danger">Delete</button>
+        </div>
+      </div>
+      <div class="headerZone right">
+        <div class="statusPill" id="completionStatus"></div>
+      </div>
     </header>
 
-    <div class="toolbar">
-      <div class="toolbarLeft">
-        <button id="btnNewGroup">+ New Group</button>
-        <button id="btnNewSubgroup">+ Subgroup</button>
-        <button id="btnCreateFromTemplate" class="primary" style="margin-left:4px">⊕ From Template</button>
-        <div class="toolbarDivider"></div>
-        <select id="selGroup"></select>
-        <button id="btnDeleteGroup" class="danger">Delete</button>
-      </div>
+    <div class="toolbar topUtility">
       <div class="toolbarRight">
-        <button id="btnExportProject" class="ghost">↓ Export</button>
-        <button id="btnImportProject" class="ghost">↑ Import</button>
+        <button id="btnExportProject">Export</button>
+        <button id="btnImportProject">Import</button>
         <input id="fileProject" type="file" accept="application/json" hidden/>
-        <div class="toolbarDivider"></div>
-        <span class="lab">Spillover</span>
-        <input id="spillover" type="range" min="0" max="0.6" step="0.01"/>
-        <input id="spilloverNum" type="number" min="0" max="0.6" step="0.01"/>
+        <button class="ghost">Settings</button>
+        <div class="spilloverBox">
+          <span class="lab">Spillover</span>
+          <input id="spillover" type="range" min="0" max="0.6" step="0.01"/>
+          <input id="spilloverNum" type="number" min="0" max="0.6" step="0.01"/>
+        </div>
       </div>
     </div>
 
@@ -92,16 +102,16 @@
       <section class="card graphCard">
         <div class="graphCardHeader">
           <div>
-            <div class="cardTitle">Distribution Graph</div>
-            <div class="cardSub">Drag peak dot = center &amp; weight · drag ring = width · selected peak shows vertical center line + sigma guide</div>
+            <div class="cardTitle">Distribution</div>
+            <div class="cardSub">Drag peak = center + weight · drag ring = width · Shift-click bin = exclude</div>
           </div>
           <div class="graphCardRight">
-            <button id="btnAddPeak">+ Peak</button>
-            <button id="btnRemovePeak" class="danger">− Peak</button>
-            <button id="btnNormalize" class="ghost">Normalize</button>
-            <button id="btnRandom" class="ghost">Randomize</button>
+            <button id="btnAddPeak" class="primary">+ Add peak</button>
+            <button id="btnRemovePeak" class="danger">Remove peak</button>
+            <button id="btnNormalize">Normalize</button>
+            <button id="btnRandom">Randomize</button>
             <div class="toolbarDivider" style="height:18px"></div>
-            <span class="lab">Trait</span>
+            <span class="lab">Active trait</span>
             <select id="selTrait"></select>
           </div>
         </div>
@@ -122,17 +132,18 @@
           <section class="card">
             <div class="cardHeader">
               <div>
-                <div class="cardTitle">Peak Controls &amp; Description</div>
-                <div class="cardSub">Adjust selected peak parameters and group description.</div>
+                <div class="cardTitle">Peak inspector</div>
+                <div class="cardSub" id="editingContext">Editing context</div>
               </div>
             </div>
             <div class="bottomCardInner">
               <div>
-                <div class="sectionTitle">Selected Peak</div>
+                <div class="sectionTitle">Selected peak</div>
                 <div id="peakControls" class="controls"></div>
               </div>
               <div>
-                <div class="sectionTitle">Description <span class="req">Required</span></div>
+                <div class="sectionTitle">Group description <span class="req">Required</span></div>
+                <div class="cardSub" style="margin-bottom:8px">Describe ecology, environmental pressures, migration history, adaptation patterns, and trait co-occurrence logic.</div>
                 <textarea id="description" rows="7"
                   placeholder="Describe this phenotypic group: ecology, environmental pressures, climate adaptations, diet, migration history…"></textarea>
               </div>
@@ -143,8 +154,8 @@
           <section class="card">
             <div class="cardHeader" style="margin-bottom:8px">
               <div>
-                <div class="cardTitle">JSON Preview</div>
-                <div class="cardSub">Live export state.</div>
+                <div class="cardTitle">Live JSON</div>
+                <div class="cardSub">Technical output state.</div>
               </div>
               <label class="jsonToggle">
                 <input id="toggleJson" type="checkbox" checked/>
